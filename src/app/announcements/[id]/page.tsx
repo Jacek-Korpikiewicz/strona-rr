@@ -2,6 +2,13 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { marked } from 'marked'
+
+// Configure marked for client-side rendering
+marked.setOptions({
+  breaks: true,
+  gfm: true
+})
 
 interface Announcement {
   id: number
@@ -17,22 +24,6 @@ export default function AnnouncementPage({ params }: { params: Promise<{ id: str
   const [announcement, setAnnouncement] = useState<Announcement | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [announcementId, setAnnouncementId] = useState<number | null>(null)
-  const [renderedContent, setRenderedContent] = useState<string>('')
-
-  // Function to render markdown
-  const renderMarkdown = async (content: string) => {
-    try {
-      const { marked } = await import('marked')
-      marked.setOptions({
-        breaks: true,
-        gfm: true
-      })
-      return marked(content)
-    } catch (error) {
-      console.error('Error rendering markdown:', error)
-      return content
-    }
-  }
 
   useEffect(() => {
     // Resolve params and set announcementId
@@ -46,12 +37,6 @@ export default function AnnouncementPage({ params }: { params: Promise<{ id: str
       loadAnnouncement()
     }
   }, [announcementId])
-
-  useEffect(() => {
-    if (announcement?.content) {
-      renderMarkdown(announcement.content).then(setRenderedContent)
-    }
-  }, [announcement])
 
   const loadAnnouncement = async () => {
     if (!announcementId) return
@@ -148,7 +133,7 @@ export default function AnnouncementPage({ params }: { params: Promise<{ id: str
           <div 
             className="prose prose-lg max-w-none"
             dangerouslySetInnerHTML={{ 
-              __html: renderedContent || announcement.content || '' 
+              __html: marked(announcement.content || '') 
             }}
           />
 
