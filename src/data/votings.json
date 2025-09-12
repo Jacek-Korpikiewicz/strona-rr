@@ -1,0 +1,28 @@
+[
+  {
+    "id": 1,
+    "title": "Prezent na Dzień Chłopaka/Dzień Dziewczyny",
+    "description": "Dzień chłopaka jest już 30 września - wybierzmy budżet",
+    "options": [
+      {
+        "id": "cjhyao6ml",
+        "text": "10-20 PLN",
+        "votes": 0
+      },
+      {
+        "id": "bbqf1q5ig",
+        "text": "20-30 PLN",
+        "votes": 0
+      },
+      {
+        "id": "38kvfjt1d",
+        "text": "30-40 PLN",
+        "votes": 0
+      }
+    ],
+    "endDate": "2025-09-17T23:59",
+    "createdAt": "2025-09-11T00:36:49.424Z",
+    "status": "active",
+    "totalVotes": 0
+  }
+]
