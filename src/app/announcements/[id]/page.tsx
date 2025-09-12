@@ -2,13 +2,6 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { marked } from 'marked'
-
-// Configure marked for client-side rendering
-marked.setOptions({
-  breaks: true,
-  gfm: true
-})
 
 interface Announcement {
   id: number
@@ -130,12 +123,9 @@ export default function AnnouncementPage({ params }: { params: Promise<{ id: str
             </div>
           </div>
 
-          <div 
-            className="prose prose-lg max-w-none"
-            dangerouslySetInnerHTML={{ 
-              __html: marked(announcement.content || '') 
-            }}
-          />
+          <div className="prose prose-lg max-w-none">
+            <pre className="whitespace-pre-wrap text-gray-700">{announcement.content}</pre>
+          </div>
 
           <div className="mt-8 pt-6 border-t border-gray-200">
             <Link href="/announcements" className="btn-secondary">
