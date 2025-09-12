@@ -19,32 +19,42 @@ export async function uploadImage(file: File, folder: string = 'lesson-plans'): 
 
     console.log('Uploading image to:', filePath)
 
-    // Upload file to Supabase Storage
-    const { data, error } = await supabase.storage
-      .from('announcements')
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false
-      })
+    // Convert file to base64 for alternative storage
+    const base64 = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
 
-    if (error) {
-      console.error('Supabase storage error:', error)
-      if (error.message.includes('Bucket not found')) {
-        throw new Error('Storage bucket not found. Please create the "announcements" bucket in Supabase.')
+    // Try Supabase Storage first
+    try {
+      const { data, error } = await supabase.storage
+        .from('announcements')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        })
+
+      if (error) {
+        console.error('Supabase storage error:', error)
+        throw error
       }
-      if (error.message.includes('policy')) {
-        throw new Error('Permission denied. Please check storage policies in Supabase.')
-      }
-      throw new Error(`Upload failed: ${error.message}`)
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('announcements')
+        .getPublicUrl(filePath)
+
+      console.log('Image uploaded successfully to Supabase:', publicUrl)
+      return publicUrl
+    } catch (storageError) {
+      console.warn('Supabase storage failed, using base64 fallback:', storageError)
+      
+      // Fallback: store as base64 in database
+      // This is not ideal for large images but works as a temporary solution
+      return base64
     }
-
-    // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from('announcements')
-      .getPublicUrl(filePath)
-
-    console.log('Image uploaded successfully:', publicUrl)
-    return publicUrl
   } catch (error) {
     console.error('Error uploading image:', error)
     throw error
