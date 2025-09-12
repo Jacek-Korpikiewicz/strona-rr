@@ -26,6 +26,9 @@ export default function Navbar() {
             <Link href="/announcements" className="nav-link">
               Ogłoszenia
             </Link>
+            <Link href="/lesson-plan" className="nav-link">
+              Plan lekcji
+            </Link>
             <Link href="/voting" className="nav-link">
               Głosowania
             </Link>
@@ -54,6 +57,9 @@ export default function Navbar() {
               </Link>
               <Link href="/announcements" className="px-4 py-3 text-gray-700 hover:text-primary-600 hover:bg-gray-100 rounded-md transition-colors">
                 Ogłoszenia
+              </Link>
+              <Link href="/lesson-plan" className="px-4 py-3 text-gray-700 hover:text-primary-600 hover:bg-gray-100 rounded-md transition-colors">
+                Plan lekcji
               </Link>
               <Link href="/voting" className="px-4 py-3 text-gray-700 hover:text-primary-600 hover:bg-gray-100 rounded-md transition-colors">
                 Głosowania

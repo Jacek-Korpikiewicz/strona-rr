@@ -276,6 +276,7 @@ function AddAnnouncementForm({ onSuccess }: { onSuccess: () => void }) {
     category: '',
     content: ''
   })
+  const [imageFile, setImageFile] = useState<File | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -283,6 +284,19 @@ function AddAnnouncementForm({ onSuccess }: { onSuccess: () => void }) {
     setIsSubmitting(true)
 
     try {
+      let imageUrl = null
+
+      // Upload image if it's a lesson plan
+      if (imageFile && formData.category === 'Plan') {
+        const { uploadImage } = await import('@/lib/storage')
+        imageUrl = await uploadImage(imageFile)
+        if (!imageUrl) {
+          alert('Błąd podczas przesyłania obrazu')
+          setIsSubmitting(false)
+          return
+        }
+      }
+
       const response = await fetch('/api/admin/announcements', {
         method: 'POST',
         headers: {
@@ -290,11 +304,18 @@ function AddAnnouncementForm({ onSuccess }: { onSuccess: () => void }) {
         },
         body: JSON.stringify({
           ...formData,
-          date: new Date().toISOString().split('T')[0]
+          date: new Date().toISOString().split('T')[0],
+          image_url: imageUrl
         }),
       })
 
       if (response.ok) {
+        // If it's a lesson plan, delete old ones
+        if (formData.category === 'Plan') {
+          const { deleteOldLessonPlans } = await import('@/lib/storage')
+          await deleteOldLessonPlans()
+        }
+
         onSuccess()
         setFormData({
           title: '',
@@ -303,6 +324,7 @@ function AddAnnouncementForm({ onSuccess }: { onSuccess: () => void }) {
           category: '',
           content: ''
         })
+        setImageFile(null)
       }
     } catch (error) {
       console.error('Error creating announcement:', error)
@@ -370,6 +392,24 @@ function AddAnnouncementForm({ onSuccess }: { onSuccess: () => void }) {
             />
           </div>
         </div>
+
+        {formData.category === 'Plan' && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Obraz planu lekcji (JPG/PNG) *
+            </label>
+            <input
+              type="file"
+              accept="image/jpeg,image/jpg,image/png"
+              required={formData.category === 'Plan'}
+              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Dla kategorii "Plan" wymagany jest obraz planu lekcji. Poprzedni plan zostanie automatycznie usunięty.
+            </p>
+          </div>
+        )}
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">

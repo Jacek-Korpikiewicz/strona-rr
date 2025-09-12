@@ -14,6 +14,7 @@ export interface Announcement {
   priority: 'high' | 'medium' | 'low'
   author: string
   category: string
+  image_url?: string
   created_at?: string
   updated_at?: string
 }
