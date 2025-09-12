@@ -2,10 +2,22 @@ import { supabase } from './supabase'
 
 export async function uploadImage(file: File, folder: string = 'lesson-plans'): Promise<string | null> {
   try {
+    // Check file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      throw new Error('File size too large. Maximum size is 10MB.')
+    }
+
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      throw new Error('File must be an image.')
+    }
+
     // Generate unique filename
     const fileExt = file.name.split('.').pop()
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
     const filePath = `${folder}/${fileName}`
+
+    console.log('Uploading image to:', filePath)
 
     // Upload file to Supabase Storage
     const { data, error } = await supabase.storage
@@ -16,8 +28,14 @@ export async function uploadImage(file: File, folder: string = 'lesson-plans'): 
       })
 
     if (error) {
-      console.error('Error uploading image:', error)
-      return null
+      console.error('Supabase storage error:', error)
+      if (error.message.includes('Bucket not found')) {
+        throw new Error('Storage bucket not found. Please create the "announcements" bucket in Supabase.')
+      }
+      if (error.message.includes('policy')) {
+        throw new Error('Permission denied. Please check storage policies in Supabase.')
+      }
+      throw new Error(`Upload failed: ${error.message}`)
     }
 
     // Get public URL
@@ -25,10 +43,11 @@ export async function uploadImage(file: File, folder: string = 'lesson-plans'): 
       .from('announcements')
       .getPublicUrl(filePath)
 
+    console.log('Image uploaded successfully:', publicUrl)
     return publicUrl
   } catch (error) {
     console.error('Error uploading image:', error)
-    return null
+    throw error
   }
 }
 

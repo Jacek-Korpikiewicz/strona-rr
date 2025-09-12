@@ -288,10 +288,17 @@ function AddAnnouncementForm({ onSuccess }: { onSuccess: () => void }) {
 
       // Upload image if it's a lesson plan
       if (imageFile && formData.category === 'Plan') {
-        const { uploadImage } = await import('@/lib/storage')
-        imageUrl = await uploadImage(imageFile)
-        if (!imageUrl) {
-          alert('Błąd podczas przesyłania obrazu')
+        try {
+          const { uploadImage } = await import('@/lib/storage')
+          imageUrl = await uploadImage(imageFile)
+          if (!imageUrl) {
+            alert('Błąd podczas przesyłania obrazu')
+            setIsSubmitting(false)
+            return
+          }
+        } catch (error) {
+          console.error('Upload error:', error)
+          alert(`Błąd podczas przesyłania obrazu: ${error instanceof Error ? error.message : 'Nieznany błąd'}`)
           setIsSubmitting(false)
           return
         }
