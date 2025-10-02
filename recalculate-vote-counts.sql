@@ -33,3 +33,7 @@ FROM votings v
 LEFT JOIN voting_options vo ON v.id = vo.voting_id
 GROUP BY v.id, v.title
 ORDER BY v.id;
+
+
+
+

@@ -17,12 +17,12 @@ export default function VotingPage() {
       const response = await fetch('/api/votings')
       if (response.ok) {
         const data = await response.json()
-        setVotings(data)
+        // Filter to show only active votings
+        const activeVotings = data.filter((voting: Voting) => voting.status === 'active')
+        setVotings(activeVotings)
         
         // Check vote status for each active voting
-        const statusChecks = data
-          .filter((voting: Voting) => voting.status === 'active')
-          .map(async (voting: Voting) => {
+        const statusChecks = activeVotings.map(async (voting: Voting) => {
             try {
               const statusResponse = await fetch(`/api/votings/${voting.id}/check-vote`)
               if (statusResponse.ok) {

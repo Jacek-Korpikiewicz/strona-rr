@@ -44,3 +44,7 @@ The application now uses bcrypt for password hashing instead of storing password
 4. **Use HTTPS** in production
 5. **Implement proper logging** for security events
 6. **Consider multi-factor authentication** for admin access
+
+
+
+

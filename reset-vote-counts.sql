@@ -19,3 +19,7 @@ SELECT COUNT(*) as remaining_votes FROM votes;
 
 -- If you want to also clear all votes from the votes table (optional)
 -- DELETE FROM votes;
+
+
+
+

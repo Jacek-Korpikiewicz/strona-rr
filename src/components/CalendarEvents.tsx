@@ -25,8 +25,13 @@ export default function CalendarEvents() {
           throw new Error('Failed to fetch events')
         }
         const data = await response.json()
-        // Sort events by date (nearest first)
-        const sortedEvents = data.sort((a: CalendarEvent, b: CalendarEvent) => {
+        // Filter out past events and sort by date (nearest first)
+        const now = new Date()
+        const filteredEvents = data.filter((event: CalendarEvent) => {
+          const eventDate = parseICalDate(event.start)
+          return eventDate >= now
+        })
+        const sortedEvents = filteredEvents.sort((a: CalendarEvent, b: CalendarEvent) => {
           const dateA = parseICalDate(a.start)
           const dateB = parseICalDate(b.start)
           return dateA.getTime() - dateB.getTime()
