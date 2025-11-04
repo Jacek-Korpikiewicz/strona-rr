@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useToast, ToastContainer } from '@/components/ToastContainer'
+import { useToast } from '@/components/ToastContainer'
+import ToastContainer from '@/components/ToastContainer'
 
 interface CalendarEvent {
   id: string
