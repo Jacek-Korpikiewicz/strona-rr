@@ -95,6 +95,7 @@ export default function CalendarEvents() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
+  const [selectedTag, setSelectedTag] = useState<EventTag | 'all'>('all')
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -202,10 +203,9 @@ export default function CalendarEvents() {
   }
 
   const handleEventClick = (eventId: string) => {
-    if (eventId === events[0]?.id) return // Don't swap with itself
-    
+    // Find the event in the original events array
     const selectedEventIndex = events.findIndex(event => event.id === eventId)
-    if (selectedEventIndex === -1) return
+    if (selectedEventIndex === -1 || eventId === events[0]?.id) return // Don't swap with itself
     
     // Create new array with selected event moved to position 0
     const newEvents = [...events]
@@ -251,6 +251,14 @@ export default function CalendarEvents() {
     )
   }
 
+  // Filter events by selected tag
+  const filteredEvents = selectedTag === 'all' 
+    ? events 
+    : events.filter(event => detectEventTag(event) === selectedTag)
+
+  // Get available tags from events
+  const availableTags = Array.from(new Set(events.map(event => detectEventTag(event))))
+
   if (events.length === 0) {
     return (
       <section id="calendar">
@@ -279,15 +287,102 @@ export default function CalendarEvents() {
     <section id="calendar">
       <div>
         <h2 className="section-title">Nadchodzące wydarzenia</h2>
+        
+        {/* Tag Filter Buttons */}
+        <div className="flex flex-wrap justify-center gap-2 mb-6">
+          <button
+            onClick={() => setSelectedTag('all')}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+              selectedTag === 'all'
+                ? 'bg-gray-800 text-white shadow-md'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            Wszystkie
+          </button>
+          {availableTags.includes('P') && (
+            <button
+              onClick={() => setSelectedTag('P')}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                selectedTag === 'P'
+                  ? 'bg-violet-600 text-white shadow-md'
+                  : 'bg-violet-100 text-violet-700 hover:bg-violet-200'
+              }`}
+            >
+              [P]
+            </button>
+          )}
+          {availableTags.includes('1-3') && (
+            <button
+              onClick={() => setSelectedTag('1-3')}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                selectedTag === '1-3'
+                  ? 'bg-emerald-600 text-white shadow-md'
+                  : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+              }`}
+            >
+              [1-3]
+            </button>
+          )}
+          {availableTags.includes('4-6') && (
+            <button
+              onClick={() => setSelectedTag('4-6')}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                selectedTag === '4-6'
+                  ? 'bg-orange-600 text-white shadow-md'
+                  : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+              }`}
+            >
+              [4-6]
+            </button>
+          )}
+          {availableTags.includes('7-8') && (
+            <button
+              onClick={() => setSelectedTag('7-8')}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                selectedTag === '7-8'
+                  ? 'bg-amber-600 text-white shadow-md'
+                  : 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+              }`}
+            >
+              [7-8]
+            </button>
+          )}
+          {availableTags.includes('RR') && (
+            <button
+              onClick={() => setSelectedTag('RR')}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                selectedTag === 'RR'
+                  ? 'bg-red-600 text-white shadow-md'
+                  : 'bg-red-100 text-red-700 hover:bg-red-200'
+              }`}
+            >
+              [RR]
+            </button>
+          )}
+          {availableTags.includes('none') && (
+            <button
+              onClick={() => setSelectedTag('none')}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                selectedTag === 'none'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+              }`}
+            >
+              Bez tagu
+            </button>
+          )}
+        </div>
+
         <p className="text-gray-600 text-center mb-6">
           Kliknij na dowolne wydarzenie po prawej stronie, aby uczynić je głównym
         </p>
         
-        {/* Special layout: Main event (1) + 3 smaller events (2-4) */}
+        {/* Special layout: Main event (1) + 6 smaller events (2-7) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Main event (1) - Large display */}
-          {events.length > 0 && (() => {
-            const mainEvent = events[0]
+          {filteredEvents.length > 0 && (() => {
+            const mainEvent = filteredEvents[0]
             const mainTag = detectEventTag(mainEvent)
             const mainColors = getTagColorClasses(mainTag)
             
@@ -364,9 +459,9 @@ export default function CalendarEvents() {
             )
           })()}
 
-          {/* Next 3 events (2-4) - Smaller cards without descriptions */}
+          {/* Next 6 events (2-7) - Smaller cards without descriptions */}
           <div className="lg:col-span-1 space-y-4">
-            {events.slice(1, 4).map((event, index) => {
+            {filteredEvents.slice(1, 7).map((event, index) => {
               const tag = detectEventTag(event)
               const colors = getTagColorClasses(tag)
               return (
@@ -447,7 +542,7 @@ export default function CalendarEvents() {
             Subskrybuj kalendarz
           </a>
           
-          {events.length > 6 && (
+          {events.length > 7 && (
             <div>
               <a
                 href="https://calendar.google.com/calendar/u/1?cid=11214639e3e9e6a82fe52467d4413379ff174e7b588466601dbe856da7b2021f@group.calendar.google.com"
@@ -457,6 +552,12 @@ export default function CalendarEvents() {
               >
                 Zobacz wszystkie wydarzenia ({events.length})
               </a>
+            </div>
+          )}
+          
+          {filteredEvents.length === 0 && selectedTag !== 'all' && (
+            <div className="text-center py-6">
+              <p className="text-gray-600">Brak wydarzeń z wybranym tagiem</p>
             </div>
           )}
         </div>

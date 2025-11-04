@@ -74,6 +74,20 @@ export default function AdminPage() {
     }
   }
 
+  const handleStartTimeChange = (startTime: string) => {
+    if (startTime) {
+      // Parse the datetime-local value (YYYY-MM-DDTHH:mm)
+      const startDate = new Date(startTime)
+      // Add 1 hour
+      const endDate = new Date(startDate.getTime() + 60 * 60 * 1000)
+      // Format back to datetime-local format
+      const endTime = endDate.toISOString().slice(0, 16)
+      setNewEvent({ ...newEvent, start: startTime, end: endTime })
+    } else {
+      setNewEvent({ ...newEvent, start: startTime })
+    }
+  }
+
   const handleAddEvent = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -219,20 +233,20 @@ export default function AdminPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Data rozpoczęcia *
+                  Data rozpoczęcia * (czas w formacie 24h, strefa: Polska)
                 </label>
                 <input
                   type="datetime-local"
                   required
                   value={newEvent.start}
-                  onChange={(e) => setNewEvent({ ...newEvent, start: e.target.value })}
+                  onChange={(e) => handleStartTimeChange(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                   disabled={loading}
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Data zakończenia
+                  Data zakończenia (czas w formacie 24h, strefa: Polska)
                 </label>
                 <input
                   type="datetime-local"
