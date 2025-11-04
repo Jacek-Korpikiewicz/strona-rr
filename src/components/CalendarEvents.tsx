@@ -376,10 +376,6 @@ export default function CalendarEvents() {
             </button>
           )}
         </div>
-
-        <p className="text-gray-600 text-center mb-6">
-          Kliknij na dowolne wydarzenie po prawej stronie, aby uczynić je głównym
-        </p>
         
         {/* Special layout: Main event (1) + 6 smaller events (2-7) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
