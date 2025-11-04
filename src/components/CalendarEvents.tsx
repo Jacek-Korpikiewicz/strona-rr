@@ -162,7 +162,8 @@ export default function CalendarEvents() {
     return date.toLocaleDateString('pl-PL', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
+      timeZone: 'Europe/Warsaw'
     })
   }
 
@@ -171,7 +172,8 @@ export default function CalendarEvents() {
     return date.toLocaleTimeString('pl-PL', {
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false
+      hour12: false,
+      timeZone: 'Europe/Warsaw'
     })
   }
 

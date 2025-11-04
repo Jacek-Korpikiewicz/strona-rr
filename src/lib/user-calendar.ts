@@ -36,38 +36,64 @@ function dbToAppEvent(dbEvent: DatabaseEvent): UserCalendarEvent {
 
 // Convert application event to database format
 function appToDbEvent(event: Omit<UserCalendarEvent, 'id' | 'createdAt'>): Omit<DatabaseEvent, 'id' | 'created_at'> {
-  // Ensure dates are in ISO format for Supabase TIMESTAMPTZ
-  let startTime = event.start
-  let endTime = event.end
-  
-  // If datetime-local format (YYYY-MM-DDTHH:mm), convert to ISO
-  if (startTime && !startTime.includes('Z') && !startTime.includes('+')) {
-    // If missing timezone, assume local timezone
-    try {
-      const date = new Date(startTime)
-      if (!isNaN(date.getTime())) {
-        startTime = date.toISOString()
-      }
-    } catch (e) {
-      // Keep original if conversion fails
+  // Convert datetime-local format (YYYY-MM-DDTHH:mm) to ISO string for Poland timezone
+  // datetime-local gives local time without timezone, we treat it as Poland time (Europe/Warsaw)
+  function convertToPolandISO(dateTimeString: string): string {
+    if (!dateTimeString) return dateTimeString
+    
+    // If already has timezone info, return as is
+    if (dateTimeString.includes('Z') || dateTimeString.match(/[+-]\d{2}:\d{2}$/)) {
+      return dateTimeString
     }
-  }
-  
-  if (endTime && !endTime.includes('Z') && !endTime.includes('+')) {
+    
+    // datetime-local format: YYYY-MM-DDTHH:mm
+    // Parse as Poland timezone (Europe/Warsaw) and convert to ISO
     try {
-      const date = new Date(endTime)
-      if (!isNaN(date.getTime())) {
-        endTime = date.toISOString()
-      }
+      const [datePart, timePart] = dateTimeString.split('T')
+      const [year, month, day] = datePart.split('-').map(Number)
+      const [hour, minute] = timePart.split(':').map(Number)
+      
+      // Create a date representing this time in Poland timezone
+      // We need to find what UTC time would display as this time in Poland
+      // Method: create a date string with Poland timezone, then convert to UTC
+      
+      // Create a test UTC date to determine Poland's offset on this date
+      const testUTC = new Date(Date.UTC(year, month - 1, day, 12, 0, 0))
+      
+      // Get what 12:00 UTC is in Poland timezone
+      const polandTimeAtNoon = testUTC.toLocaleString('en-US', { 
+        timeZone: 'Europe/Warsaw',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      })
+      
+      // Calculate offset: if UTC 12:00 shows as 13:00 or 14:00 in Poland, we know the offset
+      const [polandHour] = polandTimeAtNoon.split(':').map(Number)
+      const polandOffsetHours = polandHour - 12 // +1 for CET, +2 for CEST
+      
+      // Now create the UTC date that represents our input time in Poland
+      // If user enters 14:30 in Poland, and Poland is UTC+2, then UTC is 12:30
+      const utcHour = hour - polandOffsetHours
+      const utcDate = new Date(Date.UTC(year, month - 1, day, utcHour, minute, 0))
+      
+      return utcDate.toISOString()
     } catch (e) {
-      // Keep original if conversion fails
+      console.error('Error converting date to Poland timezone:', e)
+      // Fallback: treat as local time and convert to ISO
+      try {
+        const date = new Date(dateTimeString)
+        return date.toISOString()
+      } catch {
+        return dateTimeString
+      }
     }
   }
   
   return {
     title: event.title,
-    start_time: startTime,
-    end_time: endTime,
+    start_time: convertToPolandISO(event.start),
+    end_time: event.end ? convertToPolandISO(event.end) : convertToPolandISO(event.start),
     description: event.description || null,
     location: event.location || null
   }

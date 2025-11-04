@@ -296,11 +296,11 @@ export default function AdminPage() {
                       </h3>
                       <div className="space-y-1 text-sm text-gray-600">
                         <p>
-                          <strong>Rozpoczęcie:</strong> {new Date(event.start).toLocaleString('pl-PL', { hour12: false })}
+                          <strong>Rozpoczęcie:</strong> {new Date(event.start).toLocaleString('pl-PL', { hour12: false, timeZone: 'Europe/Warsaw' })}
                         </p>
                         {event.end && (
                           <p>
-                            <strong>Zakończenie:</strong> {new Date(event.end).toLocaleString('pl-PL', { hour12: false })}
+                            <strong>Zakończenie:</strong> {new Date(event.end).toLocaleString('pl-PL', { hour12: false, timeZone: 'Europe/Warsaw' })}
                           </p>
                         )}
                         {event.location && (
