@@ -16,12 +16,14 @@ interface CalendarEvent {
 type EventTag = 'P' | '1-3' | '4-6' | '7-8' | 'RR' | 'none'
 
 function detectEventTag(event: CalendarEvent): EventTag {
-  const text = `${event.title} ${event.description || ''}`.toUpperCase()
+  const text = `${event.title} ${event.description || ''}`
+  const upperText = text.toUpperCase()
   
-  // Use regex to find tags in brackets
+  // Use regex to find tags in brackets (case-insensitive)
   // Priority: RR > P > numbers
-  if (/\[RR\]/.test(text)) return 'RR'
-  if (/\[P\]/.test(text)) return 'P'
+  // Check both original and uppercase to handle case variations
+  if (/\[RR\]/i.test(text)) return 'RR'
+  if (/\[P\]/i.test(text)) return 'P'
   if (/\[[1-3]\]/.test(text)) return '1-3'
   if (/\[[4-6]\]/.test(text)) return '4-6'
   if (/\[[78]\]/.test(text)) return '7-8'
@@ -271,6 +273,7 @@ export default function CalendarEvents() {
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary w-full text-center block inline-flex items-center justify-center"
+              style={{ display: 'none' }}
             >
               <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
@@ -480,11 +483,8 @@ export default function CalendarEvents() {
                       {event.title}
                     </h3>
                     <div className="flex items-center space-x-2">
-                      <span className={`px-2 py-1 ${colors.bg} ${colors.accent} text-xs font-medium rounded-full`}>
-                        Kliknij
-                      </span>
                       {getDaysUntilEvent(event.start) && (
-                        <span className={`ml-3 px-3 py-1 ${colors.bg} ${colors.accent} text-sm font-medium rounded-full whitespace-nowrap`}>
+                        <span className={`px-3 py-1 ${colors.bg} ${colors.accent} text-sm font-medium rounded-full whitespace-nowrap`}>
                           {getDaysUntilEvent(event.start)}
                         </span>
                       )}
@@ -535,6 +535,7 @@ export default function CalendarEvents() {
             target="_blank"
             rel="noopener noreferrer"
             className="btn-primary w-full text-center block inline-flex items-center justify-center"
+            style={{ display: 'none' }}
           >
             <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
