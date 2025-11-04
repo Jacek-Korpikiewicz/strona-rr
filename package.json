@@ -18,7 +18,7 @@
   "license": "ISC",
   "description": "Class Parent Council Website",
   "dependencies": {
-    "@supabase/supabase-js": "^2.57.4",
+    "@supabase/supabase-js": "^2.79.0",
     "@types/bcrypt": "^6.0.0",
     "@types/node": "^24.3.1",
     "@types/react": "^19.1.12",
@@ -27,7 +27,6 @@
     "bcrypt": "^6.0.0",
     "eslint": "^9.35.0",
     "eslint-config-next": "^15.5.3",
-    "marked": "^16.2.1",
     "next": "^15.5.3",
     "postcss": "^8.5.6",
     "react": "^19.1.1",

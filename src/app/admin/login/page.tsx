@@ -43,7 +43,7 @@ export default function LoginPage() {
             Panel administracyjny
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Zaloguj się, aby zarządzać ogłoszeniami
+            Zaloguj się, aby zarządzać kalendarzem
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>

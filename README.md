@@ -1,82 +1,76 @@
-# Strona Rady Rodziców
+# Calendar Website
 
-Nowoczesna strona internetowa dla Rady Rodziców klasy, stworzona w Next.js z Tailwind CSS.
+A simple calendar webpage that displays events from two sources:
+1. **Google Calendar** - Linked Google Calendar events
+2. **User Entries** - Password-protected user-submitted events
 
-## Funkcjonalności
+## Features
 
-- 🏠 **Strona główna** - nowoczesny design z najnowszymi ogłoszeniami
-- 📢 **Ogłoszenia** - sekcja z aktualnymi informacjami i komunikatami
-- 🔗 **Ważne linki** - formularze, kalendarz szkolny, portale
-- 🗳️ **Głosowania** - system głosowań z zabezpieczeniem przed duplikatami
-- 📞 **Kontakt** - formularz kontaktowy z walidacją
-- 📱 **Responsywny design** - działa na wszystkich urządzeniach
+- Display events from Google Calendar (via public iCal feed)
+- Add custom events with password protection
+- Merge and display both sources together
+- Clean, modern UI
 
-## Technologie
+## Setup
 
-- **Next.js 15** - framework React z App Router
-- **TypeScript** - typowanie statyczne
-- **Tailwind CSS** - utility-first CSS framework
-- **Vercel** - hosting (darmowy tier)
-
-## Instalacja i uruchomienie
-
-1. Zainstaluj zależności:
+1. Install dependencies:
 ```bash
 npm install
 ```
 
-2. Uruchom serwer deweloperski:
+2. Set up the admin password (optional, for production):
+```bash
+# Generate a password hash
+node -e "const bcrypt = require('bcrypt'); bcrypt.hash('your-password', 12).then(console.log)"
+```
+
+3. Set environment variable (optional):
+```bash
+ADMIN_PASSWORD_HASH=$2b$12$...your-hash-here
+```
+
+If not set, the default password is `ziemniaki`.
+
+4. Update the Google Calendar ID in `src/app/api/calendar/route.ts` if needed.
+
+5. Run the development server:
 ```bash
 npm run dev
 ```
 
-3. Otwórz [http://localhost:3000](http://localhost:3000) w przeglądarce
+## Usage
 
-## Skrypty
+### Viewing Calendar
 
-- `npm run dev` - uruchomienie serwera deweloperskiego
-- `npm run build` - budowanie aplikacji produkcyjnej
-- `npm run start` - uruchomienie aplikacji produkcyjnej
-- `npm run lint` - sprawdzenie kodu ESLint
+Visit `http://localhost:3000` to see the calendar with events from both Google Calendar and user entries.
 
-## Struktura projektu
+### Adding Events
 
-```
-src/
-├── app/                    # App Router (Next.js 13+)
-│   ├── globals.css        # Globalne style
-│   ├── layout.tsx         # Główny layout
-│   ├── page.tsx           # Strona główna
-│   ├── announcements/     # Strona ogłoszeń
-│   ├── links/            # Strona linków
-│   ├── voting/           # Strona głosowań
-│   └── contact/          # Strona kontaktu
-├── components/            # Komponenty React
-│   ├── Navbar.tsx        # Nawigacja
-│   ├── Footer.tsx        # Stopka
-│   ├── Hero.tsx          # Sekcja hero
-│   ├── Announcements.tsx # Ogłoszenia
-│   ├── ImportantLinks.tsx # Ważne linki
-│   ├── VotingSection.tsx # Głosowania
-│   └── ContactForm.tsx   # Formularz kontaktowy
-└── lib/                  # Narzędzia i utilities
-```
+1. Go to `/admin` or `/admin/login`
+2. Enter the password
+3. Fill in the event form:
+   - Title (required)
+   - Start date/time (required)
+   - End date/time (optional)
+   - Location (optional)
+   - Description (optional)
+4. Click "Dodaj wydarzenie"
 
-## Wdrażanie
+### Managing Events
 
-Aplikacja jest skonfigurowana do eksportu statycznego i może być hostowana na Vercel:
+In the admin panel, you can:
+- View all your custom events
+- Delete events you've created
 
-1. Połącz repozytorium z Vercel
-2. Ustaw build command: `npm run build`
-3. Ustaw output directory: `out`
-4. Wdróż!
+## Data Storage
 
-## Dostosowywanie
+User calendar events are stored in `data/user-calendar.json` (created automatically).
 
-- **Kolory**: Edytuj `tailwind.config.js` aby zmienić paletę kolorów
-- **Treść**: Aktualizuj dane w komponentach (announcements, links, voting)
-- **Styling**: Użyj klas Tailwind CSS lub dodaj własne style w `globals.css`
+## Tech Stack
 
-## Licencja
+- Next.js 15
+- React 19
+- TypeScript
+- Tailwind CSS
+- bcrypt (for password hashing)
 
-ISC

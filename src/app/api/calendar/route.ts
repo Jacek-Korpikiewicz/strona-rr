@@ -1,29 +1,49 @@
 import { NextResponse } from 'next/server'
+import { getUserCalendarEvents } from '@/lib/user-calendar'
 
 export async function GET() {
   try {
-    // Your actual Google Calendar ID
     const calendarId = '11214639e3e9e6a82fe52467d4413379ff174e7b588466601dbe856da7b2021f@group.calendar.google.com'
     
-    // For now, we'll use the public iCal feed approach
-    // This doesn't require an API key and works with public calendars
+    // Fetch Google Calendar events
     const icalUrl = `https://calendar.google.com/calendar/ical/${encodeURIComponent(calendarId)}/public/basic.ics`
+    let googleEvents: any[] = []
     
     try {
-      // Fetch the iCal feed
       const response = await fetch(icalUrl)
       const icalData = await response.text()
-      
-      // Parse iCal data (simplified parser)
-      const events = parseICal(icalData)
-      
-      return NextResponse.json(events)
+      googleEvents = parseICal(icalData)
     } catch (error) {
       console.error('Error fetching iCal data:', error)
-      
-      // Fallback: return empty array if calendar is not public
-      return NextResponse.json([])
     }
+    
+    // Fetch user calendar events
+    let userEvents: any[] = []
+    try {
+      const userEventsData = await getUserCalendarEvents()
+      userEvents = userEventsData.map(event => ({
+        id: event.id,
+        title: event.title,
+        start: event.start,
+        end: event.end,
+        description: event.description || '',
+        location: event.location || '',
+        htmlLink: '',
+        source: 'user'
+      }))
+    } catch (error) {
+      console.error('Error fetching user calendar events:', error)
+    }
+    
+    // Merge and sort events by start date
+    const allEvents = [...googleEvents, ...userEvents]
+    const sortedEvents = allEvents.sort((a, b) => {
+      const dateA = new Date(a.start).getTime()
+      const dateB = new Date(b.start).getTime()
+      return dateA - dateB
+    })
+    
+    return NextResponse.json(sortedEvents)
   } catch (error) {
     console.error('Error in calendar API:', error)
     return NextResponse.json({ error: 'Failed to fetch calendar events' }, { status: 500 })
@@ -44,7 +64,13 @@ function parseICal(icalData: string) {
   } | null = null
   
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim()
+    let line = lines[i].trim()
+    
+    // Handle multi-line values (lines starting with space or tab)
+    while (i + 1 < lines.length && (lines[i + 1].startsWith(' ') || lines[i + 1].startsWith('\t'))) {
+      i++
+      line += lines[i].substring(1) // Remove the leading space/tab
+    }
     
     if (line === 'BEGIN:VEVENT') {
       currentEvent = {}
@@ -76,7 +102,12 @@ function parseICal(icalData: string) {
           currentEvent.dtend = value
           break
         case 'DESCRIPTION':
+          // Unescape iCal description and handle line breaks
           currentEvent.description = value
+            .replace(/\\n/g, '\n')
+            .replace(/\\,/g, ',')
+            .replace(/\\;/g, ';')
+            .replace(/\\\\/g, '\\')
           break
         case 'LOCATION':
           currentEvent.location = value
@@ -109,6 +140,16 @@ function formatDate(icalDate: string) {
     const minute = icalDate.substring(11, 13)
     const second = icalDate.substring(13, 15)
     return `${year}-${month}-${day}T${hour}:${minute}:${second}`
+  } else if (icalDate.length === 16 && icalDate.endsWith('Z')) {
+    // UTC format: YYYYMMDDTHHMMSSZ
+    const year = icalDate.substring(0, 4)
+    const month = icalDate.substring(4, 6)
+    const day = icalDate.substring(6, 8)
+    const hour = icalDate.substring(9, 11)
+    const minute = icalDate.substring(11, 13)
+    const second = icalDate.substring(13, 15)
+    return `${year}-${month}-${day}T${hour}:${minute}:${second}Z`
   }
+  // If already in ISO format, return as is
   return icalDate
 }

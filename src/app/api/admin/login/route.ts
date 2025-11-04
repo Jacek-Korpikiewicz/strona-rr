@@ -11,6 +11,13 @@ export async function POST(request: NextRequest) {
     // Verify the provided password against the hash
     const isValidPassword = await verifyPassword(password, hashedPassword)
     
+    console.log('=== LOGIN DEBUG ===')
+    console.log('Password provided:', password ? `"${password}" (${password.length} chars)` : 'NO PASSWORD')
+    console.log('Hash from getAdminPasswordHash:', hashedPassword ? `"${hashedPassword.substring(0, 30)}..." (${hashedPassword.length} chars)` : 'NO HASH')
+    console.log('Hash match result:', isValidPassword)
+    console.log('Env var exists:', !!process.env.ADMIN_PASSWORD_HASH)
+    console.log('==================')
+    
     if (isValidPassword) {
       // Create a simple session token (in production, use proper JWT)
       const token = Buffer.from('admin-session').toString('base64')

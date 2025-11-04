@@ -5,9 +5,9 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Klasa Ib SP398',
-  description: 'Strona internetowa Klasa Ib SP398 - centralne miejsce informacji i głosowań dla rodziców',
-  keywords: 'klasa Ib, szkoła, SP 398, informacje, głosowania',
+  title: 'Kalendarz',
+  description: 'Kalendarz wydarzeń - połączony z Google Calendar',
+  keywords: 'kalendarz, wydarzenia',
 }
 
 export default function RootLayout({
