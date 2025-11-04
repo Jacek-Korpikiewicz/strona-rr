@@ -101,12 +101,14 @@ export default function AdminPage() {
         })
         showToast('Wydarzenie dodane pomyślnie!', 'success')
       } else {
-        const error = await response.json()
-        showToast(error.error || 'Błąd podczas dodawania wydarzenia', 'error')
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        console.error('API error:', errorData)
+        showToast(errorData.error || `Błąd podczas dodawania wydarzenia (${response.status})`, 'error')
       }
     } catch (error) {
       console.error('Error adding event:', error)
-      showToast('Błąd podczas dodawania wydarzenia', 'error')
+      const errorMessage = error instanceof Error ? error.message : 'Błąd podczas dodawania wydarzenia'
+      showToast(errorMessage, 'error')
     } finally {
       setLoading(false)
     }
@@ -294,11 +296,11 @@ export default function AdminPage() {
                       </h3>
                       <div className="space-y-1 text-sm text-gray-600">
                         <p>
-                          <strong>Rozpoczęcie:</strong> {new Date(event.start).toLocaleString('pl-PL')}
+                          <strong>Rozpoczęcie:</strong> {new Date(event.start).toLocaleString('pl-PL', { hour12: false })}
                         </p>
                         {event.end && (
                           <p>
-                            <strong>Zakończenie:</strong> {new Date(event.end).toLocaleString('pl-PL')}
+                            <strong>Zakończenie:</strong> {new Date(event.end).toLocaleString('pl-PL', { hour12: false })}
                           </p>
                         )}
                         {event.location && (

@@ -170,7 +170,8 @@ export default function CalendarEvents() {
     const date = parseICalDate(dateString)
     return date.toLocaleTimeString('pl-PL', {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      hour12: false
     })
   }
 

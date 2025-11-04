@@ -40,7 +40,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(event, { status: 201 })
   } catch (error) {
     console.error('Error creating user calendar event:', error)
-    return NextResponse.json({ error: 'Failed to create event' }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create event'
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }
 
