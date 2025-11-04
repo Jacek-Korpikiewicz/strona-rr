@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getUserCalendarEvents, saveUserCalendarEvent, deleteUserCalendarEvent } from '@/lib/user-calendar'
+import { getUserCalendarEvents, saveUserCalendarEvent, deleteUserCalendarEvent, updateUserCalendarEvent } from '@/lib/user-calendar'
 import { verifyPassword, getAdminPasswordHash } from '@/lib/auth'
 
 // GET: Fetch all user calendar events
@@ -41,6 +41,42 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating user calendar event:', error)
     const errorMessage = error instanceof Error ? error.message : 'Failed to create event'
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
+  }
+}
+
+// PUT: Update a user calendar event (password protected)
+export async function PUT(request: NextRequest) {
+  try {
+    const { password, id, ...eventData } = await request.json()
+    
+    if (!id || !password) {
+      return NextResponse.json({ error: 'ID and password are required' }, { status: 400 })
+    }
+    
+    // Verify password
+    const hashedPassword = getAdminPasswordHash()
+    const isValidPassword = await verifyPassword(password, hashedPassword)
+    
+    if (!isValidPassword) {
+      return NextResponse.json({ error: 'Invalid password' }, { status: 401 })
+    }
+    
+    // Validate event data
+    if (!eventData.title || !eventData.start) {
+      return NextResponse.json({ error: 'Title and start date are required' }, { status: 400 })
+    }
+    
+    // If no end date provided, use start date
+    if (!eventData.end) {
+      eventData.end = eventData.start
+    }
+    
+    const event = await updateUserCalendarEvent(id, eventData)
+    return NextResponse.json(event)
+  } catch (error) {
+    console.error('Error updating user calendar event:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Failed to update event'
     return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }

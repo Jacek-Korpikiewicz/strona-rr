@@ -150,6 +150,34 @@ export async function saveUserCalendarEvent(event: Omit<UserCalendarEvent, 'id' 
   return dbToAppEvent(data)
 }
 
+// Update user calendar event in Supabase
+export async function updateUserCalendarEvent(id: string, event: Omit<UserCalendarEvent, 'id' | 'createdAt'>): Promise<UserCalendarEvent> {
+  validateSupabaseConfig()
+  const supabase = getSupabase()
+  const dbEvent = appToDbEvent(event)
+
+  const { data, error } = await supabase
+    .from('user_calendar_events')
+    .update({
+      ...dbEvent
+    })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error updating event in Supabase:', error)
+    console.error('Error details:', JSON.stringify(error, null, 2))
+    throw new Error(`Failed to update event in Supabase: ${error.message} (Code: ${error.code || 'unknown'})`)
+  }
+  
+  if (!data) {
+    throw new Error('No data returned from Supabase update')
+  }
+
+  return dbToAppEvent(data)
+}
+
 // Delete user calendar event from Supabase
 export async function deleteUserCalendarEvent(id: string): Promise<boolean> {
   try {

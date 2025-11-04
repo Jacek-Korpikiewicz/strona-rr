@@ -28,6 +28,14 @@ export default function AdminPage() {
     description: '',
     location: ''
   })
+  const [editingEventId, setEditingEventId] = useState<string | null>(null)
+  const [editEvent, setEditEvent] = useState({
+    title: '',
+    start: '',
+    end: '',
+    description: '',
+    location: ''
+  })
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -122,6 +130,108 @@ export default function AdminPage() {
     } catch (error) {
       console.error('Error adding event:', error)
       const errorMessage = error instanceof Error ? error.message : 'Błąd podczas dodawania wydarzenia'
+      showToast(errorMessage, 'error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleEditStart = (event: CalendarEvent) => {
+    // Convert ISO date (UTC) to datetime-local format for editing
+    // The dates are stored in UTC, we need to display them in Poland timezone
+    const startDate = new Date(event.start)
+    const endDate = new Date(event.end)
+    
+    // Format date for datetime-local input (YYYY-MM-DDTHH:mm)
+    // Convert UTC to Poland timezone for display
+    const formatForDateTimeLocal = (date: Date) => {
+      // Use Intl.DateTimeFormat to get components in Poland timezone
+      const formatter = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Europe/Warsaw',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      })
+      const parts = formatter.formatToParts(date)
+      const year = parts.find(p => p.type === 'year')?.value || ''
+      const month = parts.find(p => p.type === 'month')?.value || ''
+      const day = parts.find(p => p.type === 'day')?.value || ''
+      const hour = parts.find(p => p.type === 'hour')?.value || ''
+      const minute = parts.find(p => p.type === 'minute')?.value || ''
+      
+      return `${year}-${month}-${day}T${hour}:${minute}`
+    }
+    
+    setEditEvent({
+      title: event.title,
+      start: formatForDateTimeLocal(startDate),
+      end: formatForDateTimeLocal(endDate),
+      description: event.description || '',
+      location: event.location || ''
+    })
+    setEditingEventId(event.id)
+  }
+
+  const handleEditCancel = () => {
+    setEditingEventId(null)
+    setEditEvent({
+      title: '',
+      start: '',
+      end: '',
+      description: '',
+      location: ''
+    })
+  }
+
+  const handleEditStartTimeChange = (startTime: string) => {
+    if (startTime) {
+      const startDate = new Date(startTime)
+      const endDate = new Date(startDate.getTime() + 60 * 60 * 1000)
+      const endTime = new Date(endDate.getTime() - endDate.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+      setEditEvent({ ...editEvent, start: startTime, end: endTime })
+    } else {
+      setEditEvent({ ...editEvent, start: startTime })
+    }
+  }
+
+  const handleUpdateEvent = async (id: string) => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/user-calendar', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          password,
+          id,
+          ...editEvent
+        }),
+      })
+      
+      if (response.ok) {
+        const updatedEvent = await response.json()
+        setEvents(events.map(e => e.id === id ? updatedEvent : e))
+        setEditingEventId(null)
+        setEditEvent({
+          title: '',
+          start: '',
+          end: '',
+          description: '',
+          location: ''
+        })
+        showToast('Wydarzenie zaktualizowane pomyślnie!', 'success')
+      } else {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        console.error('API error:', errorData)
+        showToast(errorData.error || `Błąd podczas aktualizacji wydarzenia (${response.status})`, 'error')
+      }
+    } catch (error) {
+      console.error('Error updating event:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Błąd podczas aktualizacji wydarzenia'
       showToast(errorMessage, 'error')
     } finally {
       setLoading(false)
@@ -303,40 +413,140 @@ export default function AdminPage() {
             <div className="space-y-4">
               {events.map((event) => (
                 <div key={event.id} className="card">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        {event.title}
-                      </h3>
-                      <div className="space-y-1 text-sm text-gray-600">
-                        <p>
-                          <strong>Rozpoczęcie:</strong> {new Date(event.start).toLocaleString('pl-PL', { hour12: false, timeZone: 'Europe/Warsaw' })}
-                        </p>
-                        {event.end && (
+                  {editingEventId === event.id ? (
+                    <form onSubmit={(e) => { e.preventDefault(); handleUpdateEvent(event.id); }} className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Tytuł *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={editEvent.title}
+                          onChange={(e) => setEditEvent({ ...editEvent, title: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                          disabled={loading}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Data rozpoczęcia * (czas w formacie 24h, strefa: Polska)
+                          </label>
+                          <input
+                            type="datetime-local"
+                            required
+                            value={editEvent.start}
+                            onChange={(e) => handleEditStartTimeChange(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                            disabled={loading}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Data zakończenia (czas w formacie 24h, strefa: Polska)
+                          </label>
+                          <input
+                            type="datetime-local"
+                            value={editEvent.end}
+                            onChange={(e) => setEditEvent({ ...editEvent, end: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                            disabled={loading}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Lokalizacja
+                        </label>
+                        <input
+                          type="text"
+                          value={editEvent.location}
+                          onChange={(e) => setEditEvent({ ...editEvent, location: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                          disabled={loading}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Opis
+                        </label>
+                        <textarea
+                          rows={4}
+                          value={editEvent.description}
+                          onChange={(e) => setEditEvent({ ...editEvent, description: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                          placeholder="Opcjonalny opis wydarzenia..."
+                          disabled={loading}
+                        />
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          type="submit"
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm"
+                          disabled={loading}
+                        >
+                          {loading ? 'Zapisywanie...' : 'Zapisz'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleEditCancel}
+                          className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm"
+                          disabled={loading}
+                        >
+                          Anuluj
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                          {event.title}
+                        </h3>
+                        <div className="space-y-1 text-sm text-gray-600">
                           <p>
-                            <strong>Zakończenie:</strong> {new Date(event.end).toLocaleString('pl-PL', { hour12: false, timeZone: 'Europe/Warsaw' })}
+                            <strong>Rozpoczęcie:</strong> {new Date(event.start).toLocaleString('pl-PL', { hour12: false, timeZone: 'Europe/Warsaw' })}
                           </p>
-                        )}
-                        {event.location && (
-                          <p>
-                            <strong>Lokalizacja:</strong> {event.location}
-                          </p>
-                        )}
-                        {event.description && (
-                          <p className="mt-2">
-                            <strong>Opis:</strong> {event.description}
-                          </p>
-                        )}
+                          {event.end && (
+                            <p>
+                              <strong>Zakończenie:</strong> {new Date(event.end).toLocaleString('pl-PL', { hour12: false, timeZone: 'Europe/Warsaw' })}
+                            </p>
+                          )}
+                          {event.location && (
+                            <p>
+                              <strong>Lokalizacja:</strong> {event.location}
+                            </p>
+                          )}
+                          {event.description && (
+                            <p className="mt-2">
+                              <strong>Opis:</strong> {event.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex gap-2 ml-4">
+                        <button
+                          onClick={() => handleEditStart(event)}
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
+                          disabled={loading}
+                        >
+                          Edytuj
+                        </button>
+                        <button
+                          onClick={() => handleDelete(event.id)}
+                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
+                          disabled={loading}
+                        >
+                          Usuń
+                        </button>
                       </div>
                     </div>
-                    <button
-                      onClick={() => handleDelete(event.id)}
-                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm ml-4"
-                      disabled={loading}
-                    >
-                      Usuń
-                    </button>
-                  </div>
+                  )}
                 </div>
               ))}
             </div>
