@@ -30,6 +30,16 @@ export default function Navigation() {
           >
             Wpłaty
           </Link>
+          <Link
+            href="/notatki"
+            className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+              pathname === '/notatki'
+                ? 'bg-primary-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            Notatki
+          </Link>
         </div>
       </div>
     </nav>
