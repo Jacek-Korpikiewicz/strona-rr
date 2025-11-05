@@ -115,22 +115,23 @@ export default function NewsletterPage() {
                   </button>
                 </div>
                 
-                <div className="border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                <div className="border border-gray-200 rounded-lg overflow-auto bg-gray-50" style={{ maxHeight: 'calc(100vh - 250px)' }}>
                   {selectedFile.type === 'pdf' ? (
-                    <div style={{ height: 'calc(50vh)' }} className="overflow-auto">
+                    <div className="w-full">
                       <iframe
                         src={`${selectedFile.path}#zoom=fit-width`}
-                        className="w-full h-full border-0"
+                        className="w-full border-0"
+                        style={{ minHeight: 'calc(80vh)', height: 'auto' }}
                         title="PDF Viewer"
                       />
                     </div>
                   ) : (
-                    <div className="flex items-start justify-center bg-gray-50 p-4 overflow-auto" style={{ minHeight: 'calc(50vh)', maxHeight: 'calc(50vh)' }}>
+                    <div className="flex items-start justify-center bg-gray-50 p-4">
                       <img
                         src={selectedFile.path}
                         alt={selectedFile.name}
-                        className="w-full h-auto object-contain"
-                        style={{ maxWidth: '100%' }}
+                        className="w-full h-auto"
+                        style={{ maxWidth: '100%', display: 'block' }}
                       />
                     </div>
                   )}
