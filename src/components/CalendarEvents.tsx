@@ -19,14 +19,27 @@ function detectEventTag(event: CalendarEvent): EventTag {
   const text = `${event.title} ${event.description || ''}`
   const upperText = text.toUpperCase()
   
-  // Use regex to find tags in brackets (case-insensitive)
-  // Priority: RR > P > numbers
-  // Check both original and uppercase to handle case variations
-  if (/\[RR\]/i.test(text)) return 'RR'
-  if (/\[P\]/i.test(text)) return 'P'
-  if (/\[[1-3]\]/.test(text)) return '1-3'
-  if (/\[[4-6]\]/.test(text)) return '4-6'
-  if (/\[[78]\]/.test(text)) return '7-8'
+  // Check for all possible tags
+  const hasRR = /\[RR\]/i.test(text)
+  const hasP = /\[P\]/i.test(text)
+  const has1to3 = /\[[1-3]\]/.test(text)
+  const has4to6 = /\[[4-6]\]/.test(text)
+  const has7to8 = /\[[78]\]/.test(text)
+  
+  // Count how many tags are found
+  const tagCount = [hasRR, hasP, has1to3, has4to6, has7to8].filter(Boolean).length
+  
+  // If two or more tags are found, return 'none' (default color)
+  if (tagCount >= 2) {
+    return 'none'
+  }
+  
+  // If only one tag found, return it (priority: RR > P > numbers)
+  if (hasRR) return 'RR'
+  if (hasP) return 'P'
+  if (has1to3) return '1-3'
+  if (has4to6) return '4-6'
+  if (has7to8) return '7-8'
   
   // Default: no tag
   return 'none'

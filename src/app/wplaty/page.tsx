@@ -8,14 +8,74 @@ interface PaymentEntry {
   wplacone: number
 }
 
+// Animated bar component that fills from 0% to target percentage
+function AnimatedBar({ percentage, color, delay = 0 }: { percentage: number; color: string; delay?: number }) {
+  const [animatedPercentage, setAnimatedPercentage] = useState(0)
+
+  useEffect(() => {
+    // Reset to 0 when percentage changes
+    setAnimatedPercentage(0)
+    
+    // Animation duration in milliseconds
+    const duration = 1200
+    let startTime: number | null = null
+    const targetPercentage = Math.min(percentage, 100)
+
+    const animate = (timestamp: number) => {
+      if (startTime === null) {
+        startTime = timestamp
+      }
+      
+      const elapsed = timestamp - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      
+      // Easing function for smooth animation (ease-out)
+      const easeOut = 1 - Math.pow(1 - progress, 3)
+      const currentPercentage = easeOut * targetPercentage
+
+      setAnimatedPercentage(currentPercentage)
+
+      if (progress < 1) {
+        requestAnimationFrame(animate)
+      } else {
+        setAnimatedPercentage(targetPercentage)
+      }
+    }
+
+    // Start animation after delay
+    const timeoutId = setTimeout(() => {
+      requestAnimationFrame(animate)
+    }, delay)
+
+    return () => clearTimeout(timeoutId)
+  }, [percentage, delay])
+
+  return (
+    <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+      <div
+        className={`h-4 rounded-full transition-all duration-75 ${color}`}
+        style={{ width: `${animatedPercentage}%` }}
+      />
+    </div>
+  )
+}
+
 export default function WplatyPage() {
   const [przedszkoleData, setPrzedszkoleData] = useState<PaymentEntry[]>([])
   const [szkolaData, setSzkolaData] = useState<PaymentEntry[]>([])
   const [loading, setLoading] = useState(true)
+  const [animationStarted, setAnimationStarted] = useState(false)
 
   useEffect(() => {
     fetchData()
   }, [])
+
+  useEffect(() => {
+    // Start animation after data is loaded
+    if (!loading && (przedszkoleData.length > 0 || szkolaData.length > 0)) {
+      setAnimationStarted(true)
+    }
+  }, [loading, przedszkoleData.length, szkolaData.length])
 
   const fetchData = async () => {
     try {
@@ -65,12 +125,17 @@ export default function WplatyPage() {
                     {item.wplacone} / {item.max} zł
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-4">
-                  <div
-                    className={`h-4 rounded-full transition-all duration-300 ${percentageColor}`}
-                    style={{ width: `${Math.min(percentage, 100)}%` }}
+                {animationStarted ? (
+                  <AnimatedBar 
+                    percentage={percentage} 
+                    color={percentageColor} 
+                    delay={index * 50} // Stagger animation by 50ms per item
                   />
-                </div>
+                ) : (
+                  <div className="w-full bg-gray-200 rounded-full h-4">
+                    <div className="h-4 rounded-full bg-gray-300" style={{ width: '0%' }} />
+                  </div>
+                )}
               </div>
             )
           })}
