@@ -58,7 +58,7 @@ export default function NotatkiPage() {
           <h1 className="text-3xl font-bold text-gray-900 mb-8">Notatki</h1>
           
           <div className={`flex gap-6 transition-all duration-300 ${
-            selectedPdf ? 'flex-row' : 'flex-col'
+            selectedPdf ? 'flex-col lg:flex-row' : 'flex-col'
           }`}>
             {/* PDF List */}
             <div className={`bg-white rounded-lg shadow-md p-4 lg:p-6 transition-all duration-300 ${
@@ -108,7 +108,7 @@ export default function NotatkiPage() {
                   </button>
                 </div>
                 
-                <div className="border border-gray-200 rounded-lg overflow-hidden" style={{ height: 'calc(100vh - 200px)' }}>
+                <div className="border border-gray-200 rounded-lg overflow-hidden" style={{ height: 'calc(50vh)' }}>
                   <iframe
                     src={selectedPdf}
                     className="w-full h-full"
