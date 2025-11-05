@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   keywords: 'kalendarz, wydarzenia',
 }
 
+import Navigation from '@/components/Navigation'
+
 export default function RootLayout({
   children,
 }: {
@@ -19,6 +21,7 @@ export default function RootLayout({
     <html lang="pl">
       <body className={inter.className}>
         <div className="min-h-screen">
+          <Navigation />
           {children}
         </div>
       </body>

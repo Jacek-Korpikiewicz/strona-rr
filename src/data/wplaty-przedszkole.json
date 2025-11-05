@@ -1,0 +1,43 @@
+[
+  {
+    "class": "0A",
+    "amount": 1250,
+    "paid": true
+  },
+  {
+    "class": "0B",
+    "amount": 1100,
+    "paid": false
+  },
+  {
+    "class": "0C",
+    "amount": 980,
+    "paid": true
+  },
+  {
+    "class": "1A",
+    "amount": 1350,
+    "paid": true
+  },
+  {
+    "class": "1B",
+    "amount": 1200,
+    "paid": true
+  },
+  {
+    "class": "2A",
+    "amount": 1000,
+    "paid": false
+  },
+  {
+    "class": "2B",
+    "amount": 1150,
+    "paid": true
+  },
+  {
+    "class": "3A",
+    "amount": 1300,
+    "paid": true
+  }
+]
+

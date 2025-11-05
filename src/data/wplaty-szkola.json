@@ -1,0 +1,88 @@
+[
+  {
+    "class": "1A",
+    "amount": 1500,
+    "paid": true
+  },
+  {
+    "class": "1B",
+    "amount": 1450,
+    "paid": true
+  },
+  {
+    "class": "1C",
+    "amount": 1400,
+    "paid": false
+  },
+  {
+    "class": "2A",
+    "amount": 1600,
+    "paid": true
+  },
+  {
+    "class": "2B",
+    "amount": 1550,
+    "paid": true
+  },
+  {
+    "class": "3A",
+    "amount": 1480,
+    "paid": true
+  },
+  {
+    "class": "3B",
+    "amount": 1420,
+    "paid": false
+  },
+  {
+    "class": "4A",
+    "amount": 1650,
+    "paid": true
+  },
+  {
+    "class": "4B",
+    "amount": 1580,
+    "paid": true
+  },
+  {
+    "class": "5A",
+    "amount": 1700,
+    "paid": true
+  },
+  {
+    "class": "5B",
+    "amount": 1620,
+    "paid": false
+  },
+  {
+    "class": "6A",
+    "amount": 1750,
+    "paid": true
+  },
+  {
+    "class": "6B",
+    "amount": 1680,
+    "paid": true
+  },
+  {
+    "class": "7A",
+    "amount": 1800,
+    "paid": true
+  },
+  {
+    "class": "7B",
+    "amount": 1720,
+    "paid": false
+  },
+  {
+    "class": "8A",
+    "amount": 1850,
+    "paid": true
+  },
+  {
+    "class": "8B",
+    "amount": 1780,
+    "paid": true
+  }
+]
+
