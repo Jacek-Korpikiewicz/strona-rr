@@ -110,8 +110,8 @@ export default function NotatkiPage() {
                 
                 <div className="border border-gray-200 rounded-lg overflow-hidden" style={{ height: 'calc(50vh)' }}>
                   <iframe
-                    src={selectedPdf}
-                    className="w-full h-full"
+                    src={`${selectedPdf}#zoom=fit-width`}
+                    className="w-full h-full border-0"
                     title="PDF Viewer"
                   />
                 </div>
