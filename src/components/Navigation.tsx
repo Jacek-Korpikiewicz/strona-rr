@@ -40,6 +40,16 @@ export default function Navigation() {
           >
             Notatki
           </Link>
+          <Link
+            href="/newsletter"
+            className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+              pathname === '/newsletter'
+                ? 'bg-primary-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            Newsletter
+          </Link>
         </div>
       </div>
     </nav>
