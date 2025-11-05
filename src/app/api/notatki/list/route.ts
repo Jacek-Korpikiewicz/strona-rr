@@ -19,16 +19,30 @@ export async function GET() {
 
     if (error) {
       console.error('Error listing files from Supabase Storage:', error)
-      return NextResponse.json({ error: 'Failed to list PDF files' }, { status: 500 })
+      console.error('Error details:', JSON.stringify(error, null, 2))
+      return NextResponse.json({ 
+        error: 'Failed to list PDF files', 
+        details: error.message,
+        code: error.statusCode 
+      }, { status: 500 })
     }
+
+    console.log('Files found in Supabase:', data?.length || 0)
+    console.log('All files:', data)
 
     // Filter for PDF files and generate public URLs
     const pdfFiles = (data || [])
-      .filter(file => file.name.toLowerCase().endsWith('.pdf'))
+      .filter(file => {
+        const isPdf = file.name.toLowerCase().endsWith('.pdf')
+        console.log(`File: ${file.name}, is PDF: ${isPdf}`)
+        return isPdf
+      })
       .map(file => {
         const { data: urlData } = supabase.storage
           .from('notatki')
           .getPublicUrl(file.name)
+        
+        console.log(`Generated URL for ${file.name}:`, urlData.publicUrl)
         
         return {
           name: file.name,
@@ -36,10 +50,15 @@ export async function GET() {
         }
       })
 
+    console.log('PDF files found:', pdfFiles.length)
     return NextResponse.json(pdfFiles)
   } catch (error) {
     console.error('Error listing PDF files:', error)
-    return NextResponse.json({ error: 'Failed to list PDF files' }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({ 
+      error: 'Failed to list PDF files',
+      details: errorMessage
+    }, { status: 500 })
   }
 }
 
