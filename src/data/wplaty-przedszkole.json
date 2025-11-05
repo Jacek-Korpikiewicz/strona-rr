@@ -1,43 +1,43 @@
 [
   {
     "class": "0A",
-    "amount": 1250,
-    "paid": true
+    "max": 2000,
+    "wplacone": 1850
   },
   {
     "class": "0B",
-    "amount": 1100,
-    "paid": false
+    "max": 2000,
+    "wplacone": 1200
   },
   {
     "class": "0C",
-    "amount": 980,
-    "paid": true
+    "max": 2000,
+    "wplacone": 2000
   },
   {
     "class": "1A",
-    "amount": 1350,
-    "paid": true
+    "max": 2000,
+    "wplacone": 1950
   },
   {
     "class": "1B",
-    "amount": 1200,
-    "paid": true
+    "max": 2000,
+    "wplacone": 1650
   },
   {
     "class": "2A",
-    "amount": 1000,
-    "paid": false
+    "max": 2000,
+    "wplacone": 800
   },
   {
     "class": "2B",
-    "amount": 1150,
-    "paid": true
+    "max": 2000,
+    "wplacone": 1750
   },
   {
     "class": "3A",
-    "amount": 1300,
-    "paid": true
+    "max": 2000,
+    "wplacone": 1900
   }
 ]
 

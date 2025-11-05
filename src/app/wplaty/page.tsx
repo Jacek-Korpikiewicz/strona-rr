@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react'
 
 interface PaymentEntry {
   class: string
-  amount: number
-  paid: boolean
+  max: number
+  wplacone: number
 }
 
 export default function WplatyPage() {
@@ -32,43 +32,43 @@ export default function WplatyPage() {
     }
   }
 
-  const getMaxAmount = (data: PaymentEntry[]) => {
-    if (data.length === 0) return 1
-    return Math.max(...data.map(item => item.amount))
-  }
-
   const renderPaymentList = (data: PaymentEntry[], title: string) => {
-    // Sort by amount descending (highest first)
-    const sortedData = [...data].sort((a, b) => b.amount - a.amount)
-    const maxAmount = getMaxAmount(sortedData)
+    // Sort by wplacone/max ratio descending (highest percentage first)
+    const sortedData = [...data].sort((a, b) => {
+      const ratioA = a.wplacone / a.max
+      const ratioB = b.wplacone / b.max
+      return ratioB - ratioA
+    })
 
     return (
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">{title}</h2>
         <div className="space-y-4">
           {sortedData.map((item, index) => {
-            const percentage = (item.amount / maxAmount) * 100
+            const percentage = (item.wplacone / item.max) * 100
+            const percentageColor = percentage >= 100 
+              ? 'bg-green-500' 
+              : percentage >= 50 
+                ? 'bg-yellow-500' 
+                : 'bg-red-500'
+            
             return (
               <div key={index} className="bg-white rounded-lg shadow-md p-4">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-3">
                     <span className="text-lg font-semibold text-gray-900">{item.class}</span>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      item.paid 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {item.paid ? 'Opłacone' : 'Nieopłacone'}
+                    <span className="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                      {percentage.toFixed(1)}%
                     </span>
                   </div>
-                  <span className="text-lg font-bold text-gray-900">{item.amount} zł</span>
+                  <span className="text-lg font-bold text-gray-900">
+                    {item.wplacone} / {item.max} zł
+                  </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-4">
                   <div
-                    className={`h-4 rounded-full transition-all duration-300 ${
-                      item.paid ? 'bg-green-500' : 'bg-red-500'
-                    }`}
-                    style={{ width: `${percentage}%` }}
+                    className={`h-4 rounded-full transition-all duration-300 ${percentageColor}`}
+                    style={{ width: `${Math.min(percentage, 100)}%` }}
                   />
                 </div>
               </div>
