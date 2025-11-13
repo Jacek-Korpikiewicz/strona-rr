@@ -20,11 +20,15 @@ function detectEventTag(event: CalendarEvent): EventTag {
   const upperText = text.toUpperCase()
   
   // Check for all possible tags
+  // Allow spaces inside brackets: [1 - 3], [1  -3], [1- 3], etc.
   const hasRR = /\[RR\]/i.test(text)
   const hasP = /\[P\]/i.test(text)
-  const has1to3 = /\[[1-3]\]/.test(text)
-  const has4to6 = /\[[4-6]\]/.test(text)
-  const has7to8 = /\[[78]\]/.test(text)
+  // Match [1-3], [1 - 3], [1  -3], [1- 3], etc. (allows spaces around the dash)
+  const has1to3 = /\[\s*[1-3]\s*-\s*[1-3]\s*\]/i.test(text) || /\[[1-3]\]/.test(text)
+  // Match [4-6], [4 - 6], [4  -6], [4- 6], etc.
+  const has4to6 = /\[\s*[4-6]\s*-\s*[4-6]\s*\]/i.test(text) || /\[[4-6]\]/.test(text)
+  // Match [7-8], [7 - 8], [7  -8], [7- 8], etc.
+  const has7to8 = /\[\s*[78]\s*-\s*[78]\s*\]/i.test(text) || /\[[78]\]/.test(text)
   
   // Count how many tags are found
   const tagCount = [hasRR, hasP, has1to3, has4to6, has7to8].filter(Boolean).length
