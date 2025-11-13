@@ -48,7 +48,8 @@ function getTagColorClasses(tag: EventTag) {
         borderHover: 'hover:border-violet-500',
         bg: 'bg-violet-50',
         badge: 'bg-violet-600 text-white',
-        accent: 'text-violet-700'
+        accent: 'text-violet-700',
+        gradientColor: '#a78bfa' // violet-400
       }
     case '1-3':
       // Green
@@ -57,7 +58,8 @@ function getTagColorClasses(tag: EventTag) {
         borderHover: 'hover:border-emerald-500',
         bg: 'bg-emerald-50',
         badge: 'bg-emerald-600 text-white',
-        accent: 'text-emerald-700'
+        accent: 'text-emerald-700',
+        gradientColor: '#34d399' // emerald-400
       }
     case '4-6':
       // Orange
@@ -66,7 +68,8 @@ function getTagColorClasses(tag: EventTag) {
         borderHover: 'hover:border-orange-500',
         bg: 'bg-orange-50',
         badge: 'bg-orange-600 text-white',
-        accent: 'text-orange-700'
+        accent: 'text-orange-700',
+        gradientColor: '#fb923c' // orange-400
       }
     case '7-8':
       // Yellow
@@ -75,7 +78,8 @@ function getTagColorClasses(tag: EventTag) {
         borderHover: 'hover:border-amber-500',
         bg: 'bg-amber-50',
         badge: 'bg-amber-600 text-white',
-        accent: 'text-amber-700'
+        accent: 'text-amber-700',
+        gradientColor: '#fbbf24' // amber-400
       }
     case 'RR':
       // Red
@@ -84,7 +88,8 @@ function getTagColorClasses(tag: EventTag) {
         borderHover: 'hover:border-red-500',
         bg: 'bg-red-50',
         badge: 'bg-red-600 text-white',
-        accent: 'text-red-700'
+        accent: 'text-red-700',
+        gradientColor: '#f87171' // red-400
       }
     case 'none':
     default:
@@ -94,9 +99,42 @@ function getTagColorClasses(tag: EventTag) {
         borderHover: 'hover:border-blue-500',
         bg: 'bg-blue-50',
         badge: 'bg-blue-600 text-white',
-        accent: 'text-blue-700'
+        accent: 'text-blue-700',
+        gradientColor: '#60a5fa' // blue-400
       }
   }
+}
+
+// Generate gradient style for multiple tags
+function getGradientStyle(tags: EventTag[]): string {
+  if (tags.length === 0 || (tags.length === 1 && tags[0] === 'none')) {
+    const colors = getTagColorClasses('none')
+    return `linear-gradient(135deg, ${colors.gradientColor}, ${colors.gradientColor})`
+  }
+  
+  // Filter out 'none' tags
+  const activeTags = tags.filter(tag => tag !== 'none')
+  
+  if (activeTags.length === 0) {
+    const colors = getTagColorClasses('none')
+    return `linear-gradient(135deg, ${colors.gradientColor}, ${colors.gradientColor})`
+  }
+  
+  if (activeTags.length === 1) {
+    const colors = getTagColorClasses(activeTags[0])
+    return `linear-gradient(135deg, ${colors.gradientColor}, ${colors.gradientColor})`
+  }
+  
+  // Multiple tags: create gradient
+  const gradientColors = activeTags.map(tag => getTagColorClasses(tag).gradientColor)
+  
+  // Create a smooth gradient with equal stops
+  const stops = gradientColors.map((color, index) => {
+    const percentage = (index / (gradientColors.length - 1)) * 100
+    return `${color} ${percentage}%`
+  }).join(', ')
+  
+  return `linear-gradient(135deg, ${stops})`
 }
 
 export default function CalendarEvents() {
@@ -398,10 +436,17 @@ export default function CalendarEvents() {
             const mainTags = detectEventTags(mainEvent)
             const mainPrimaryTag = getPrimaryTag(mainTags)
             const mainColors = getTagColorClasses(mainPrimaryTag)
+            const gradientStyle = getGradientStyle(mainTags)
             
             return (
               <div key={mainEvent.id} className="lg:col-span-1">
-                <div className={`bg-white rounded-lg shadow-lg border-2 ${mainColors.border} ${mainColors.borderHover} hover:shadow-xl transition-all duration-300 h-full`}>
+                <div 
+                  className="rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 h-full p-0.5"
+                  style={{
+                    background: gradientStyle
+                  }}
+                >
+                  <div className="bg-white rounded-lg h-full">
                   <div className="p-8">
                     <div className="flex justify-between items-start mb-6">
                       <h3 className="text-2xl font-bold text-gray-900 flex-1 leading-tight">
@@ -484,6 +529,7 @@ export default function CalendarEvents() {
                       </div>
                     )}
                   </div>
+                  </div>
                 </div>
               </div>
             )
@@ -495,16 +541,25 @@ export default function CalendarEvents() {
               const eventTags = detectEventTags(event)
               const primaryTag = getPrimaryTag(eventTags)
               const colors = getTagColorClasses(primaryTag)
+              const gradientStyle = getGradientStyle(eventTags)
               return (
               <div
                 key={event.id}
                 onClick={() => handleEventClick(event.id)}
-                className={`bg-white rounded-lg shadow-lg border-2 ${colors.border} hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer transform hover:scale-105 ${
+                className={`rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer transform hover:scale-105 p-0.5 ${
                   selectedEventId === event.id 
-                    ? `${colors.border} ${colors.bg} scale-105` 
-                    : colors.borderHover
+                    ? 'scale-105' 
+                    : ''
                 }`}
+                style={{
+                  background: gradientStyle
+                }}
               >
+                <div className={`bg-white rounded-lg ${
+                  selectedEventId === event.id 
+                    ? colors.bg 
+                    : ''
+                }`}>
                 <div className="p-4">
                   <div className="flex justify-between items-start mb-3">
                     <h3 className="text-lg font-semibold text-gray-900 flex-1 leading-tight">
@@ -567,9 +622,10 @@ export default function CalendarEvents() {
                     )}
                   </div>
                 </div>
+                </div>
               </div>
-              )
-            })}
+            )
+          })}
           </div>
         </div>
         
