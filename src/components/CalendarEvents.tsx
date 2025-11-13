@@ -15,38 +15,28 @@ interface CalendarEvent {
 // Tag-based color system
 type EventTag = 'P' | '1-3' | '4-6' | '7-8' | 'RR' | 'none'
 
-function detectEventTag(event: CalendarEvent): EventTag {
+// Detect all tags in an event (can return multiple tags)
+function detectEventTags(event: CalendarEvent): EventTag[] {
   const text = `${event.title} ${event.description || ''}`
-  const upperText = text.toUpperCase()
+  const tags: EventTag[] = []
   
   // Check for all possible tags
   // Allow spaces inside brackets: [1 - 3], [1  -3], [1- 3], etc.
-  const hasRR = /\[RR\]/i.test(text)
-  const hasP = /\[P\]/i.test(text)
+  if (/\[RR\]/i.test(text)) tags.push('RR')
+  if (/\[P\]/i.test(text)) tags.push('P')
   // Match [1-3], [1 - 3], [1  -3], [1- 3], etc. (allows spaces around the dash)
-  const has1to3 = /\[\s*[1-3]\s*-\s*[1-3]\s*\]/i.test(text) || /\[[1-3]\]/.test(text)
+  if (/\[\s*[1-3]\s*-\s*[1-3]\s*\]/i.test(text) || /\[[1-3]\]/.test(text)) tags.push('1-3')
   // Match [4-6], [4 - 6], [4  -6], [4- 6], etc.
-  const has4to6 = /\[\s*[4-6]\s*-\s*[4-6]\s*\]/i.test(text) || /\[[4-6]\]/.test(text)
+  if (/\[\s*[4-6]\s*-\s*[4-6]\s*\]/i.test(text) || /\[[4-6]\]/.test(text)) tags.push('4-6')
   // Match [7-8], [7 - 8], [7  -8], [7- 8], etc.
-  const has7to8 = /\[\s*[78]\s*-\s*[78]\s*\]/i.test(text) || /\[[78]\]/.test(text)
+  if (/\[\s*[78]\s*-\s*[78]\s*\]/i.test(text) || /\[[78]\]/.test(text)) tags.push('7-8')
   
-  // Count how many tags are found
-  const tagCount = [hasRR, hasP, has1to3, has4to6, has7to8].filter(Boolean).length
-  
-  // If two or more tags are found, return 'none' (default color)
-  if (tagCount >= 2) {
-    return 'none'
-  }
-  
-  // If only one tag found, return it (priority: RR > P > numbers)
-  if (hasRR) return 'RR'
-  if (hasP) return 'P'
-  if (has1to3) return '1-3'
-  if (has4to6) return '4-6'
-  if (has7to8) return '7-8'
-  
-  // Default: no tag
-  return 'none'
+  return tags.length > 0 ? tags : ['none']
+}
+
+// Get the primary tag for color (first tag found, or 'none')
+function getPrimaryTag(tags: EventTag[]): EventTag {
+  return tags[0] || 'none'
 }
 
 function getTagColorClasses(tag: EventTag) {
@@ -270,13 +260,19 @@ export default function CalendarEvents() {
     )
   }
 
-  // Filter events by selected tag
+  // Filter events by selected tag (event shows if it has the selected tag)
   const filteredEvents = selectedTag === 'all' 
     ? events 
-    : events.filter(event => detectEventTag(event) === selectedTag)
+    : events.filter(event => {
+        const eventTags = detectEventTags(event)
+        return eventTags.includes(selectedTag)
+      })
 
-  // Get available tags from events
-  const availableTags = Array.from(new Set(events.map(event => detectEventTag(event))))
+  // Get available tags from events (all unique tags across all events)
+  const allAvailableTags = Array.from(new Set(
+    events.flatMap(event => detectEventTags(event))
+  ))
+  const availableTags = allAvailableTags.filter(tag => tag !== 'none')
 
   if (events.length === 0) {
     return (
@@ -380,7 +376,7 @@ export default function CalendarEvents() {
               [RR]
             </button>
           )}
-          {availableTags.includes('none') && (
+          {allAvailableTags.includes('none') && (
             <button
               onClick={() => setSelectedTag('none')}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
@@ -399,8 +395,9 @@ export default function CalendarEvents() {
           {/* Main event (1) - Large display */}
           {filteredEvents.length > 0 && (() => {
             const mainEvent = filteredEvents[0]
-            const mainTag = detectEventTag(mainEvent)
-            const mainColors = getTagColorClasses(mainTag)
+            const mainTags = detectEventTags(mainEvent)
+            const mainPrimaryTag = getPrimaryTag(mainTags)
+            const mainColors = getTagColorClasses(mainPrimaryTag)
             
             return (
               <div key={mainEvent.id} className="lg:col-span-1">
@@ -410,7 +407,7 @@ export default function CalendarEvents() {
                       <h3 className="text-2xl font-bold text-gray-900 flex-1 leading-tight">
                         {mainEvent.title}
                       </h3>
-                      <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-3 flex-wrap">
                         <span className={`px-3 py-1 ${mainColors.badge} text-sm font-medium rounded-full`}>
                           GŁÓWNE
                         </span>
@@ -421,6 +418,23 @@ export default function CalendarEvents() {
                         )}
                       </div>
                     </div>
+                    
+                    {/* Tag badges */}
+                    {mainTags.length > 0 && mainTags[0] !== 'none' && (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {mainTags.map((tag, idx) => {
+                          const tagColors = getTagColorClasses(tag)
+                          return (
+                            <span
+                              key={idx}
+                              className={`px-2 py-1 ${tagColors.badge} text-xs font-medium rounded-full`}
+                            >
+                              {tag === '1-3' ? '[1-3]' : tag === '4-6' ? '[4-6]' : tag === '7-8' ? '[7-8]' : `[${tag}]`}
+                            </span>
+                          )
+                        })}
+                      </div>
+                    )}
                     
                     <div className="space-y-3 mb-6">
                       <div className="flex items-center text-gray-600">
@@ -478,8 +492,9 @@ export default function CalendarEvents() {
           {/* Next 6 events (2-7) - Smaller cards without descriptions */}
           <div className="lg:col-span-1 space-y-4">
             {filteredEvents.slice(1, 7).map((event, index) => {
-              const tag = detectEventTag(event)
-              const colors = getTagColorClasses(tag)
+              const eventTags = detectEventTags(event)
+              const primaryTag = getPrimaryTag(eventTags)
+              const colors = getTagColorClasses(primaryTag)
               return (
               <div
                 key={event.id}
@@ -503,6 +518,23 @@ export default function CalendarEvents() {
                       )}
                     </div>
                   </div>
+                  
+                  {/* Tag badges */}
+                  {eventTags.length > 0 && eventTags[0] !== 'none' && (
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                      {eventTags.map((tag, idx) => {
+                        const tagColors = getTagColorClasses(tag)
+                        return (
+                          <span
+                            key={idx}
+                            className={`px-1.5 py-0.5 ${tagColors.badge} text-xs font-medium rounded`}
+                          >
+                            {tag === '1-3' ? '[1-3]' : tag === '4-6' ? '[4-6]' : tag === '7-8' ? '[7-8]' : `[${tag}]`}
+                          </span>
+                        )
+                      })}
+                    </div>
+                  )}
                   
                   <div className="space-y-2">
                     <div className="flex items-center text-gray-600">
