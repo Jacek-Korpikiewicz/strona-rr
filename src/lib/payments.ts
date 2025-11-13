@@ -148,7 +148,7 @@ export async function upsertPayments(
 
 // Delete a payment
 export async function deletePayment(
-  class: string,
+  className: string,
   type: 'przedszkole' | 'szkola'
 ): Promise<boolean> {
   try {
@@ -158,7 +158,7 @@ export async function deletePayment(
     const { error } = await supabase
       .from('payments')
       .delete()
-      .eq('class', class)
+      .eq('class', className)
       .eq('type', type)
 
     if (error) {
