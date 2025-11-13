@@ -450,9 +450,10 @@ export default function CalendarEvents() {
             return (
               <div key={mainEvent.id} className="lg:col-span-1">
                 <div 
-                  className="rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 h-full p-0.5"
+                  className="rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 h-full"
                   style={{
-                    background: gradientStyle
+                    background: gradientStyle,
+                    padding: '3px'
                   }}
                 >
                   <div className="bg-white rounded-lg h-full">
@@ -555,13 +556,14 @@ export default function CalendarEvents() {
               <div
                 key={event.id}
                 onClick={() => handleEventClick(event.id)}
-                className={`rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer transform hover:scale-105 p-0.5 ${
+                className={`rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer transform hover:scale-105 ${
                   selectedEventId === event.id 
                     ? 'scale-105' 
                     : ''
                 }`}
                 style={{
-                  background: gradientStyle
+                  background: gradientStyle,
+                  padding: '3px'
                 }}
               >
                 <div className={`bg-white rounded-lg ${
