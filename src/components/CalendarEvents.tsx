@@ -342,90 +342,99 @@ export default function CalendarEvents() {
       <div>
         <h2 className="section-title">Nadchodzące wydarzenia</h2>
         
-        {/* Tag Filter Buttons */}
-        <div className="flex flex-wrap justify-center gap-2 mb-6">
-          <button
-            onClick={() => setSelectedTag('all')}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              selectedTag === 'all'
-                ? 'bg-gray-800 text-white shadow-md'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
+        {/* Tag Filter Buttons - Swipeable on mobile */}
+        <div className="mb-6">
+          <div 
+            className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 lg:justify-center lg:flex-wrap lg:overflow-x-visible lg:mx-0 lg:px-0"
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#cbd5e1 transparent',
+              WebkitOverflowScrolling: 'touch'
+            }}
           >
-            Wszystkie
-          </button>
-          {availableTags.includes('P') && (
             <button
-              onClick={() => setSelectedTag('P')}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                selectedTag === 'P'
-                  ? 'bg-violet-600 text-white shadow-md'
-                  : 'bg-violet-100 text-violet-700 hover:bg-violet-200'
+              onClick={() => setSelectedTag('all')}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+                selectedTag === 'all'
+                  ? 'bg-gray-800 text-white shadow-md'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
-              [P]
+              Wszystkie
             </button>
-          )}
-          {availableTags.includes('1-3') && (
-            <button
-              onClick={() => setSelectedTag('1-3')}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                selectedTag === '1-3'
-                  ? 'bg-emerald-600 text-white shadow-md'
-                  : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
-              }`}
-            >
-              [1-3]
-            </button>
-          )}
-          {availableTags.includes('4-6') && (
-            <button
-              onClick={() => setSelectedTag('4-6')}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                selectedTag === '4-6'
-                  ? 'bg-orange-600 text-white shadow-md'
-                  : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
-              }`}
-            >
-              [4-6]
-            </button>
-          )}
-          {availableTags.includes('7-8') && (
-            <button
-              onClick={() => setSelectedTag('7-8')}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                selectedTag === '7-8'
-                  ? 'bg-amber-600 text-white shadow-md'
-                  : 'bg-amber-100 text-amber-700 hover:bg-amber-200'
-              }`}
-            >
-              [7-8]
-            </button>
-          )}
-          {availableTags.includes('RR') && (
-            <button
-              onClick={() => setSelectedTag('RR')}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                selectedTag === 'RR'
-                  ? 'bg-red-600 text-white shadow-md'
-                  : 'bg-red-100 text-red-700 hover:bg-red-200'
-              }`}
-            >
-              [RR]
-            </button>
-          )}
-          {allAvailableTags.includes('none') && (
-            <button
-              onClick={() => setSelectedTag('none')}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                selectedTag === 'none'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-              }`}
-            >
-              Bez tagu
-            </button>
-          )}
+            {availableTags.includes('P') && (
+              <button
+                onClick={() => setSelectedTag('P')}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+                  selectedTag === 'P'
+                    ? 'bg-violet-600 text-white shadow-md'
+                    : 'bg-violet-100 text-violet-700 hover:bg-violet-200'
+                }`}
+              >
+                [P]
+              </button>
+            )}
+            {availableTags.includes('1-3') && (
+              <button
+                onClick={() => setSelectedTag('1-3')}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+                  selectedTag === '1-3'
+                    ? 'bg-emerald-600 text-white shadow-md'
+                    : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                }`}
+              >
+                [1-3]
+              </button>
+            )}
+            {availableTags.includes('4-6') && (
+              <button
+                onClick={() => setSelectedTag('4-6')}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+                  selectedTag === '4-6'
+                    ? 'bg-orange-600 text-white shadow-md'
+                    : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                }`}
+              >
+                [4-6]
+              </button>
+            )}
+            {availableTags.includes('7-8') && (
+              <button
+                onClick={() => setSelectedTag('7-8')}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+                  selectedTag === '7-8'
+                    ? 'bg-amber-600 text-white shadow-md'
+                    : 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                }`}
+              >
+                [7-8]
+              </button>
+            )}
+            {availableTags.includes('RR') && (
+              <button
+                onClick={() => setSelectedTag('RR')}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+                  selectedTag === 'RR'
+                    ? 'bg-red-600 text-white shadow-md'
+                    : 'bg-red-100 text-red-700 hover:bg-red-200'
+                }`}
+              >
+                [RR]
+              </button>
+            )}
+            {allAvailableTags.includes('none') && (
+              <button
+                onClick={() => setSelectedTag('none')}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+                  selectedTag === 'none'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                }`}
+              >
+                Bez tagu
+              </button>
+            )}
+          </div>
         </div>
         
         {/* Special layout: Main event (1) + 6 smaller events (2-7) */}
